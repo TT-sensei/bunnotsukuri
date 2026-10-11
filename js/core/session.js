@@ -49,6 +49,5 @@
   function equalOrder(a,b){
     return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((value,index)=>value===b[index]);
   }
-  }
   window.BunSession={build};
 })();
