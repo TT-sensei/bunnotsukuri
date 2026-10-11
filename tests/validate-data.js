@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 global.window = {};
 require("../js/data/questions.js");
 require("../js/core/grading.js");
+require("../js/core/session.js");
 const { stages, questions } = window.BUN_DATA;
 assert.equal(stages.length, 10, "10ステージが定義されている");
 assert.ok(questions.length >= 80, "練習問題が80問以上ある");
@@ -35,9 +36,21 @@ for (const q of questions) {
 }
 assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が走る。").correct, true, "短い自作文の条件");
 assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が歩く。").correct, false, "必須語句の不足を検出");
+
+const stageOne = questions.filter(q => q.stage === 1);
+const session = window.BunSession.build(stageOne, 5, () => 0.42);
+assert.equal(session.length, 5, "指定した数の問題を選ぶ");
+assert.equal(new Set(session.map(q => q.id)).size, session.length, "1回の学習で同じ問題をくり返さない");
+const difficultyRank = { basic: 0, standard: 1, challenge: 2 };
+assert.ok(session.every((q, i) => i === 0 || difficultyRank[session[i - 1].difficulty] <= difficultyRank[q.difficulty]), "やさしい問題から少しずつむずかしくなる");
+assert.equal(window.BunSession.build(stageOne, 100).length, stageOne.length, "問題数より多く指定しても全問題数をこえない");
+const stageTen = questions.filter(q => q.stage === 10);
+const shortWritingSession = window.BunSession.build(stageTen, 5, () => 0.42);
+assert.equal(shortWritingSession.filter(q => q.difficulty === "basic").length, 1, "基本問題が少ないステージでも、ある基本問題から始める");
+assert.equal(shortWritingSession.filter(q => q.difficulty === "challenge").length, 1, "短い学習ではチャレンジ問題を詰め込みすぎない");
 const reorderQuestions = questions.filter(q => q.type === "reorder");
 assert.ok(reorderQuestions.some(q => q.answerPatterns && q.answerPatterns.length), "複数の正しい並べ方がある問題を含む");
 const reorderWithAlternative = reorderQuestions.find(q => q.answerPatterns && q.answerPatterns.length);
 assert.ok(window.BunGrading.evaluate(reorderWithAlternative, reorderWithAlternative.answerPatterns[0]).correct, "並べ替えの別解を正解として受け入れる");
 
-console.log("OK: " + stages.length + " stages, " + questions.length + " questions, answer patterns verified.");
+console.log("OK: " + stages.length + " stages, " + questions.length + " questions, answer patterns and session flow verified.");
