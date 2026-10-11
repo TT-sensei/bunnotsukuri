@@ -31,9 +31,13 @@
       const attempts=snapshot().attempts;
       const recommendation=window.BunAnalytics.recommend(window.BunAnalytics.summarize(attempts));
       const targetSkill=skill||recommendation.skill;
-      const wrong=new Set(attempts.filter(a=>(!targetSkill||a.skill===targetSkill)&&!a.correct&&!a.revealed).map(a=>a.questionId));
-      const focused=DATA.questions.filter(q=>(!targetSkill||q.skill===targetSkill)&&wrong.has(q.id));
-      qs=focused.length>=3?focused:DATA.questions.filter(q=>!targetSkill||q.skill===targetSkill);
+      if(targetSkill){
+        const wrong=new Set(attempts.filter(a=>a.skill===targetSkill&&!a.correct&&!a.revealed).map(a=>a.questionId));
+        const focused=DATA.questions.filter(q=>q.skill===targetSkill&&wrong.has(q.id));
+        qs=focused.length>=3?focused:DATA.questions.filter(q=>q.skill===targetSkill);
+      }else{
+        qs=DATA.questions.filter(q=>q.stage===stageId);
+      }
       if(!qs.length)qs=DATA.questions.filter(q=>q.stage===stageId);
     }
     const length=snapshot().settings.sessionLength;
