@@ -16,14 +16,17 @@
       challenge:shuffle(items.filter(q=>q.difficulty==="challenge"),random)
     };
     const chosen=[];
-    const basicTarget=Math.ceil(limit*0.4);
-    const standardTarget=Math.ceil(limit*0.4);
+    const basicTarget=Math.min(limit,Math.ceil(limit*0.4));
+    const standardTarget=Math.min(Math.ceil(limit*0.4),limit-basicTarget);
+    const challengeTarget=limit-basicTarget-standardTarget;
     chosen.push(...tiers.basic.splice(0,basicTarget));
-    chosen.push(...tiers.standard.splice(0,Math.min(standardTarget,limit-chosen.length)));
-    chosen.push(...tiers.challenge.splice(0,limit-chosen.length));
+    chosen.push(...tiers.standard.splice(0,standardTarget));
+    chosen.push(...tiers.challenge.splice(0,challengeTarget));
     if(chosen.length<limit){
-      const remaining=shuffle([...tiers.basic,...tiers.standard,...tiers.challenge],random);
-      chosen.push(...remaining.slice(0,limit-chosen.length));
+      const remaining=[...tiers.basic,...tiers.standard,...tiers.challenge];
+      const fillOrder={basic:0,standard:1,challenge:2};
+      remaining.sort((a,b)=>(fillOrder[a.difficulty]??1)-(fillOrder[b.difficulty]??1));
+      chosen.push(...shuffle(remaining,random).slice(0,limit-chosen.length));
     }
     const rank={basic:0,standard:1,challenge:2};
     return chosen.map((question,index)=>({question,index}))
