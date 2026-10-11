@@ -8,7 +8,7 @@
   function render(){
     const s=snapshot();
     if(screen==="home")root.innerHTML=window.BunUI.home(DATA,stageProgress(),s.settings);
-    else if(screen==="question"&&run&&run.questions[currentIndex])root.innerHTML=window.BunUI.question(run.questions[currentIndex],currentIndex,run.questions.length,selection,feedback,s.settings,mode);
+    else if(screen==="question"&&run&&run.questions[currentIndex])root.innerHTML=window.BunUI.question(run.questions[currentIndex],currentIndex,run.questions.length,selection,feedback,s.settings,mode,hintLevel);
     else if(screen==="result"&&run)root.innerHTML=window.BunUI.result(run);
     else if(screen==="records")root.innerHTML=window.BunUI.records(s);
     else if(screen==="settings")root.innerHTML=window.BunUI.settings(s.settings);

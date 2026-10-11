@@ -14,7 +14,7 @@
     const tip='<div class="navi-tip">'+image(asset(randomCharacter("home-tip"),"hint"),"考え方のヒントを伝える案内役")+'<div><strong>ことばのヒント</strong><p>まず、じゅつ語を見つけよう。次に「だれが・何が」と考えよう。「妹は本を読む。」のように、「は」が付く言葉も主語になることがあるよ。文の意味もたしかめよう。</p><small>キャラクターは学習のヒントを伝える案内役です。</small></div></div>';
     return '<section class="hero"><div><span class="eyebrow">ことばを考えよう</span><h1>ことばのつらなり</h1><p>言葉のはたらきやつながりを見つけよう。文の大事なところを見つけて、もっと分かりやすい文にしよう。</p>'+button("学習をはじめる ↓","firstStage","button primary")+'</div><div class="hero-art">'+image(group("group-studying"),"6人のナビキャラクターが学習する様子")+'</div></section><div class="section-head"><div><h2>学習ステージ</h2><p>今、練習したい内容を選ぼう。</p></div><p>10ステージ</p></div><section class="stage-grid" aria-label="学習ステージ">'+cards+'</section><section class="home-bottom"><div class="panel">'+tip+'</div><div class="panel"><h3>自分のペースで進めよう</h3><p>まちがえても大丈夫。ヒントを見たり、もう一度考えたりして、少しずつ言葉のつながりを見つけよう。</p><div class="record-actions">'+button("苦手を特訓する","training","button soft")+button("学習の記録を見る","records","button")+'</div></div></section>';
   }
-  function question(q,index,total,selection,feedback,settings,mode){
+  function question(q,index,total,selection,feedback,settings,mode,hintLevel=0){
     const typeLabels={select:"言葉をえらぶ",pair:"主語（しゅご）とじゅつ語",relation:"言葉のつながり",strip:"文の中心",classify:"じゅつ語のなかま",repair:"文を直す",reorder:"言葉の順番",compose:"文を作る"};
     let task="";
     if(q.type==="select"||q.type==="classify"||q.type==="repair"){
