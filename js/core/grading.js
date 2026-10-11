@@ -14,8 +14,10 @@
         return {correct:Array.isArray(answer)&&equalArray([...answer].sort(),[...question.answer].sort()),gradable:true};
       case "repair":
         return {correct:Array.isArray(answer)?answer.length===1&&question.answer.includes(answer[0]):question.answer.includes(answer),gradable:true};
-      case "reorder":
-        return {correct:equalArray(answer,question.answer),gradable:true};
+      case "reorder":{
+        const accepted=[question.answer,...(Array.isArray(question.answerPatterns)?question.answerPatterns:[])];
+        return {correct:Array.isArray(answer)&&accepted.some(pattern=>equalArray(answer,pattern)),gradable:true,acceptedCount:accepted.length};
+      }
       case "compose":{
         const value=String(answer||"").trim();
         const normalized=norm(value);

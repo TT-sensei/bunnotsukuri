@@ -48,8 +48,8 @@
   function logAttempt(q,correct,firstCorrect,revealed=false){
     storage.addAttempt({questionId:q.id,stage:q.stage,skill:q.skill,correct,firstCorrect,hintLevel,revealed,difficulty:q.difficulty,type:q.type});
   }
-  function updateRunItem(q,correct,firstCorrect,revealed=false){
-    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed};
+  function updateRunItem(q,correct,firstCorrect,revealed=false,skipped=false){
+    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed,skipped,attempted:!skipped};
     const index=run.items.findIndex(x=>x.questionId===q.id);
     if(index>=0)run.items[index]={...run.items[index],...item};else run.items.push(item);
   }
@@ -80,7 +80,8 @@
     logAttempt(q,false,!!run.firstAttemptResults[q.id],true);
     updateRunItem(q,false,!!run.firstAttemptResults[q.id],true);
     render();
-    const f=root.querySelector(".feedback");if(f)f.insertAdjacentHTML("beforeend",'<p class="feedback-detail"><strong>答え：</strong>'+window.BunUI.safe(ans)+'</p>');
+    const answerLabel=q.type==="reorder"&&Array.isArray(q.answerPatterns)&&q.answerPatterns.length?"答えの一つ：":"答え：";
+    const f=root.querySelector(".feedback");if(f)f.insertAdjacentHTML("beforeend",'<p class="feedback-detail"><strong>'+answerLabel+'</strong>'+window.BunUI.safe(ans)+'</p>');
   }
   function answerText(q){
     if(q.type==="select"||q.type==="classify")return q.parts.find(p=>p.id===q.answer)?.text||"";
@@ -94,6 +95,13 @@
   function next(){
     if(currentIndex+1<run.questions.length){currentIndex++;selection=null;feedback=null;hintLevel=0;render();}
     else{screen="result";render();}
+  }
+  function skipQuestion(){
+    const q=current();if(!q)return;
+    const existing=run.items.find(x=>x.questionId===q.id);
+    if(existing)existing.skipped=true;
+    else updateRunItem(q,false,false,false,true);
+    next();
   }
   function retry(){if(current()?.type!=="compose")selection=null;feedback=null;render();}
   function chooseAnswer(id){
@@ -136,6 +144,7 @@
       else if(action==="stage")startStage(el.dataset.stage);
       else if(action==="check")check();
       else if(action==="next")next();
+      else if(action==="skipQuestion")skipQuestion();
       else if(action==="retry")retry();
       else if(action==="editCompose"){feedback=null;render();}
       else if(action==="hint"){hintLevel=Math.min(2,hintLevel+1);feedback={correct:false,message:current().hint,explanation:hintLevel>1?current().explanation:"まず、問いかけに合う言葉を探そう。"};render();}
