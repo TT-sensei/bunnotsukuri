@@ -24,17 +24,30 @@
     const id=stageMap[recommendation.skill]||1;
     root.innerHTML=window.BunUI.shell("もう一度練習","できるところから、少しずつ進もう。",'<section class="panel"><h2>'+window.BunUI.safe(recommendation.title)+'</h2><p>'+window.BunUI.safe(recommendation.message)+'</p><div class="record-actions">'+window.BunUI.button("おすすめの特訓を始める","startTraining","button primary",'data-stage="'+id+'"')+window.BunUI.button("ステージを選ぶ","home","button")+'</div></section><section class="panel" style="margin-top:14px"><h3>練習のヒント</h3><p>最初は短い文で考え、できたら言葉が多い文に進もう。正解したかだけでなく、どう考えたかも大切にしよう。</p></section>',"home");
   }
-  function startStage(id,training=false){
-    stageId=Number(id)||1;mode=training?"training":"stage";trainingSkill=null;
+  function startStage(id,training=false,skill=null){
+    stageId=Number(id)||1;mode=training?"training":"stage";trainingSkill=skill;
     let qs=DATA.questions.filter(q=>q.stage===stageId);
-    if(training){const att=snapshot().attempts;const wrong=new Set(att.filter(a=>a.skill===Object.keys({})[0]&& !a.correct).map(a=>a.questionId));qs=qs.filter(q=>wrong.has(q.id));if(qs.length<3)qs=DATA.questions.filter(q=>q.stage===stageId);}
+    if(training){
+      const attempts=snapshot().attempts;
+      const recommendation=window.BunAnalytics.recommend(window.BunAnalytics.summarize(attempts));
+      const targetSkill=skill||recommendation.skill;
+      const wrong=new Set(attempts.filter(a=>(!targetSkill||a.skill===targetSkill)&&!a.correct&&!a.revealed).map(a=>a.questionId));
+      const focused=DATA.questions.filter(q=>(!targetSkill||q.skill===targetSkill)&&wrong.has(q.id));
+      qs=focused.length>=3?focused:DATA.questions.filter(q=>!targetSkill||q.skill===targetSkill);
+      if(!qs.length)qs=DATA.questions.filter(q=>q.stage===stageId);
+    }
     const length=snapshot().settings.sessionLength;
-    run={stage:stageId,questions:shuffled(qs).slice(0,Math.min(length,qs.length)),items:[],lastStage:stageId};
+    run={stage:stageId,questions:shuffled(qs).slice(0,Math.min(length,qs.length)),items:[],firstAttemptResults:{},lastStage:stageId};
     currentIndex=0;selection=null;feedback=null;hintLevel=0;screen="question";render();
   }
   function current(){return run&&run.questions[currentIndex];}
   function logAttempt(q,correct,firstCorrect,revealed=false){
     storage.addAttempt({questionId:q.id,stage:q.stage,skill:q.skill,correct,firstCorrect,hintLevel,revealed,difficulty:q.difficulty,type:q.type});
+  }
+  function updateRunItem(q,correct,firstCorrect,revealed=false){
+    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed};
+    const index=run.items.findIndex(x=>x.questionId===q.id);
+    if(index>=0)run.items[index]={...run.items[index],...item};else run.items.push(item);
   }
   function check(){
     if(feedback)return;
@@ -42,27 +55,26 @@
     if(q.type==="compose"&&typeof selection!=="string")selection="";
     const result=window.BunGrading.evaluate(q,selection);
     if(!result.gradable){feedback={correct:false,message:"この答え方はまだ確認できません。問題を選び直してみよう。"};render();return;}
+    if(!Object.prototype.hasOwnProperty.call(run.firstAttemptResults,q.id))run.firstAttemptResults[q.id]=!!result.correct&&hintLevel===0;
+    const firstCorrect=!!run.firstAttemptResults[q.id];
     if(q.type==="compose"){
       feedback={correct:result.correct,message:result.feedback,explanation:q.explanation,criteria:result.criteria};
-      logAttempt(q,result.correct,result.correct&&hintLevel===0,false);
-      run.items.push({questionId:q.id,prompt:q.prompt,correct:result.correct,firstCorrect:result.correct&&hintLevel===0,revealed:false});
-    } else if(result.correct){
+    }else if(result.correct){
       feedback={correct:true,message:"言葉のつながりを見つけられたね。",explanation:q.explanation};
-      logAttempt(q,true,hintLevel===0,false);
-      run.items.push({questionId:q.id,prompt:q.prompt,correct:true,firstCorrect:hintLevel===0,revealed:false});
-    } else {
+    }else{
       feedback={correct:false,message:q.hint,explanation:"選んだ言葉を、問いかけに合わせてもう一度確かめよう。"};
-      logAttempt(q,false,false,false);
-      run.items.push({questionId:q.id,prompt:q.prompt,correct:false,firstCorrect:false,revealed:false});
     }
+    logAttempt(q,!!result.correct,firstCorrect,false);
+    updateRunItem(q,!!result.correct,firstCorrect,false);
     render();
   }
   function reveal(){
     if(feedback)return;const q=current();
     const ans=answerText(q);
     feedback={correct:false,message:"答えと考え方を確認しよう。",explanation:q.explanation,revealed:true,answer:ans};
-    logAttempt(q,false,false,true);
-    run.items.push({questionId:q.id,prompt:q.prompt,correct:false,firstCorrect:false,revealed:true});
+    if(!Object.prototype.hasOwnProperty.call(run.firstAttemptResults,q.id))run.firstAttemptResults[q.id]=false;
+    logAttempt(q,false,!!run.firstAttemptResults[q.id],true);
+    updateRunItem(q,false,!!run.firstAttemptResults[q.id],true);
     render();
     const f=root.querySelector(".feedback");if(f)f.insertAdjacentHTML("beforeend",'<p class="feedback-detail"><strong>答え：</strong>'+window.BunUI.safe(ans)+'</p>');
   }
@@ -79,10 +91,10 @@
     if(currentIndex+1<run.questions.length){currentIndex++;selection=null;feedback=null;hintLevel=0;render();}
     else{screen="result";render();}
   }
-  function retry(){selection=null;feedback=null;hintLevel=0;render();}
+  function retry(){if(current()?.type!=="compose")selection=null;feedback=null;render();}
   function chooseAnswer(id){
     const q=current();if(!q||feedback)return;
-    if(q.type==="repair"){selection=Array.isArray(selection)?selection.includes(id)?selection.filter(x=>x!==id):[...selection,id]:[id];}
+    if(q.type==="repair"){selection=id;}
     else if(q.type==="strip"){selection=Array.isArray(selection)?selection.includes(id)?selection.filter(x=>x!==id):[...selection,id]:[id];}
     else selection=id;
     render();
@@ -121,6 +133,7 @@
       else if(action==="check")check();
       else if(action==="next")next();
       else if(action==="retry")retry();
+      else if(action==="editCompose"){feedback=null;render();}
       else if(action==="hint"){hintLevel=Math.min(2,hintLevel+1);feedback={correct:false,message:current().hint,explanation:hintLevel>1?current().explanation:"まず、問いかけに合う言葉を探そう。"};render();}
       else if(action==="reveal")reveal();
       else if(action==="records"){screen="records";render();}

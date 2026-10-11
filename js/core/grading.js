@@ -13,7 +13,7 @@
       case "strip":
         return {correct:Array.isArray(answer)&&equalArray([...answer].sort(),[...question.answer].sort()),gradable:true};
       case "repair":
-        return {correct:Array.isArray(answer)?answer.some(v=>question.answer.includes(v)):question.answer.includes(answer),gradable:true};
+        return {correct:Array.isArray(answer)?answer.length===1&&question.answer.includes(answer[0]):question.answer.includes(answer),gradable:true};
       case "reorder":
         return {correct:equalArray(answer,question.answer),gradable:true};
       case "compose":{
