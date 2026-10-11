@@ -40,3 +40,13 @@ body{background-color:var(--canvas);background-image:radial-gradient(ellipse at 
 .feedback.retry{background:#f8f0dc;border-color:#ead8ae}
 .compose-form input,.compose-form textarea,.compose-form select{border-color:#d9cbb8;background:#fffdf8}
 @media(prefers-reduced-motion:reduce){.stage-card:hover{transform:none}}
+
+/* Small interaction details for smooth, tap-first practice */
+.feedback.hint{background:#e9efea;border:1px solid #c5d8cf}
+.order-preview{min-height:74px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.order-preview .word-button{font-size:.98rem;padding:8px 11px}
+.order-placeholder{color:#827969;font-size:.92rem;font-weight:600}
+@media(max-width:520px){
+  .order-preview{min-height:68px;padding:14px 10px}
+  .order-preview .word-button{min-height:44px;padding:7px 9px}
+}
