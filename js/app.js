@@ -58,15 +58,15 @@
     const q=current();if(!q)return;
     if(q.type==="compose"&&typeof selection!=="string")selection="";
     const result=window.BunGrading.evaluate(q,selection);
-    if(!result.gradable){feedback={correct:false,message:"この答え方はまだ確認できません。問題を選び直してみよう。"};render();return;}
+    if(!result.gradable){feedback={correct:false,message:"この答えは、まだたしかめられないよ。別の答えを選んでみよう。"};render();return;}
     if(!Object.prototype.hasOwnProperty.call(run.firstAttemptResults,q.id))run.firstAttemptResults[q.id]=!!result.correct&&hintLevel===0;
     const firstCorrect=!!run.firstAttemptResults[q.id];
     if(q.type==="compose"){
       feedback={correct:result.correct,message:result.feedback,explanation:q.explanation,criteria:result.criteria};
     }else if(result.correct){
-      feedback={correct:true,message:"言葉のつながりを見つけられたね。",explanation:q.explanation};
+      feedback={correct:true,message:"言葉のつながりが見つかったね。",explanation:q.explanation};
     }else{
-      feedback={correct:false,message:q.hint,explanation:"選んだ言葉を、問いかけに合わせてもう一度確かめよう。"};
+      feedback={correct:false,message:q.hint,explanation:"選んだ言葉を、問いに合わせてもう一度たしかめよう。"};
     }
     logAttempt(q,!!result.correct,firstCorrect,false);
     updateRunItem(q,!!result.correct,firstCorrect,false);
