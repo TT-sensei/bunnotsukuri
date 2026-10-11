@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7fb">
+  <meta name="description" content="主語・述語・修飾語の関係を見つけ、分かりやすい文を作る国語学習アプリ。">
+  <title>文しょう探偵｜TT-sensei</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="js/data/questions.js"></script>
+  <script defer src="js/core/grading.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/analytics.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">学習画面へ進む</a>
+  <header class="topbar">
+    <a class="brand" href="#" data-action="home" aria-label="文しょう探偵 ホーム">
+      <span class="brand-mark" aria-hidden="true">文</span><span>文しょう探偵</span>
+    </a>
+    <nav class="top-actions" aria-label="メニュー">
+      <button class="quiet-button" data-action="records">学習の記録</button>
+      <button class="quiet-button" data-action="settings">設定</button>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <div id="app" aria-live="polite"></div>
+  </main>
+  <footer class="site-footer">
+    <span>TT-sensei</span><span>言葉のつながりを見つけよう。</span>
+  </footer>
+  <noscript>このアプリを使うには、ブラウザの JavaScript を有効にしてください。</noscript>
+</body>
+</html>
