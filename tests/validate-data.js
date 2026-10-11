@@ -4,7 +4,7 @@ require("../js/data/questions.js");
 require("../js/core/grading.js");
 const { stages, questions } = window.BUN_DATA;
 assert.equal(stages.length, 10, "10ステージが定義されている");
-assert.ok(questions.length >= 40, "各ステージに複数の問題がある");
+assert.ok(questions.length >= 80, "練習問題が80問以上ある");
 const ids = new Set();
 const byId = new Map(questions.map(q => [q.id, q]));
 assert.equal(byId.size, questions.length, "問題IDが重複していない");
@@ -19,7 +19,15 @@ for (const q of questions) {
   if (q.type === "relation") assert.ok(has(q.answer.from) && has(q.answer.to), "修飾関係のID: " + q.id);
   if (q.type === "strip") assert.ok(q.answer.every(has), "骨組みの正答ID: " + q.id);
   if (q.type === "repair") assert.ok(q.answer.every(has), "修正文の正答ID: " + q.id);
-  if (q.type === "reorder") assert.ok(q.answer.every(has) && q.answer.length === q.parts.length, "並べ替えの正答ID: " + q.id);
+  if (q.type === "reorder") {
+    assert.ok(q.answer.every(has) && q.answer.length === q.parts.length, "並べ替えの正答ID: " + q.id);
+    for (const pattern of q.answerPatterns || []) {
+      assert.equal(pattern.length, q.parts.length, "別解の語句数: " + q.id);
+      assert.equal(new Set(pattern).size, q.parts.length, "別解で語句が重複していない: " + q.id);
+      assert.ok(pattern.every(has), "別解の正答ID: " + q.id);
+      assert.equal(window.BunGrading.evaluate(q, pattern).correct, true, "別解が正解になる: " + q.id);
+    }
+  }
   if (q.type !== "compose") {
     const result = window.BunGrading.evaluate(q, q.type === "repair" ? q.answer[0] : q.answer);
     assert.equal(result.correct, true, "登録済み正答が通る: " + q.id);
@@ -27,4 +35,9 @@ for (const q of questions) {
 }
 assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が走る。").correct, true, "短い自作文の条件");
 assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が歩く。").correct, false, "必須語句の不足を検出");
-console.log("OK: " + stages.length + " stages, " + questions.length + " questions, answer schema verified.");
+const reorderQuestions = questions.filter(q => q.type === "reorder");
+assert.ok(reorderQuestions.some(q => q.answerPatterns && q.answerPatterns.length), "複数の正しい並べ方がある問題を含む");
+const reorderWithAlternative = reorderQuestions.find(q => q.answerPatterns && q.answerPatterns.length);
+assert.ok(window.BunGrading.evaluate(reorderWithAlternative, reorderWithAlternative.answerPatterns[0]).correct, "並べ替えの別解を正解として受け入れる");
+
+console.log("OK: " + stages.length + " stages, " + questions.length + " questions, answer patterns verified.");
