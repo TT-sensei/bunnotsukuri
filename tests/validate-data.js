@@ -5,7 +5,8 @@ require("../js/core/grading.js");
 require("../js/core/session.js");
 const { stages, questions } = window.BUN_DATA;
 assert.equal(stages.length, 10, "10ステージが定義されている");
-assert.ok(questions.length >= 80, "練習問題が80問以上ある");
+assert.match(stages[0].description, /「は」/, "主語の説明に「は」の例が含まれている");
+assert.ok(questions.length >= 110, "練習問題が110問以上ある");
 const ids = new Set();
 const byId = new Map(questions.map(q => [q.id, q]));
 assert.equal(byId.size, questions.length, "問題IDが重複していない");
@@ -38,6 +39,9 @@ assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が走る。").c
 assert.equal(window.BunGrading.evaluate(byId.get("s10-01"), "犬が歩く。").correct, false, "必須語句の不足を検出");
 
 const stageOne = questions.filter(q => q.stage === 1);
+assert.ok(stageOne.some(q => q.sentence.includes("は") && q.explanation.includes("は")), "主語ステージに「は」を使った文と説明がある");
+assert.ok(stageOne.length >= 14, "主語ステージの問題を増やす");
+assert.ok(questions.filter(q => q.stage === 10).length >= 8, "自分で文を作る問題を増やす");
 const session = window.BunSession.build(stageOne, 5, () => 0.42);
 assert.equal(session.length, 5, "指定した数の問題を選ぶ");
 assert.equal(new Set(session.map(q => q.id)).size, session.length, "1回の学習で同じ問題をくり返さない");
