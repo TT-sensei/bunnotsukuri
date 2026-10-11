@@ -48,8 +48,8 @@
   function logAttempt(q,correct,firstCorrect,revealed=false){
     storage.addAttempt({questionId:q.id,stage:q.stage,skill:q.skill,correct,firstCorrect,hintLevel,revealed,difficulty:q.difficulty,type:q.type});
   }
-  function updateRunItem(q,correct,firstCorrect,revealed=false){
-    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed};
+  function updateRunItem(q,correct,firstCorrect,revealed=false,skipped=false){
+    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed,skipped};
     const index=run.items.findIndex(x=>x.questionId===q.id);
     if(index>=0)run.items[index]={...run.items[index],...item};else run.items.push(item);
   }
@@ -95,6 +95,11 @@
     if(currentIndex+1<run.questions.length){currentIndex++;selection=null;feedback=null;hintLevel=0;render();}
     else{screen="result";render();}
   }
+  function skipQuestion(){
+    const q=current();if(!q)return;
+    updateRunItem(q,false,false,false,true);
+    next();
+  }
   function retry(){if(current()?.type!=="compose")selection=null;feedback=null;render();}
   function chooseAnswer(id){
     const q=current();if(!q||feedback)return;
@@ -136,6 +141,7 @@
       else if(action==="stage")startStage(el.dataset.stage);
       else if(action==="check")check();
       else if(action==="next")next();
+      else if(action==="skipQuestion")skipQuestion();
       else if(action==="retry")retry();
       else if(action==="editCompose"){feedback=null;render();}
       else if(action==="hint"){hintLevel=Math.min(2,hintLevel+1);feedback={correct:false,message:current().hint,explanation:hintLevel>1?current().explanation:"まず、問いかけに合う言葉を探そう。"};render();}
