@@ -49,7 +49,7 @@
     storage.addAttempt({questionId:q.id,stage:q.stage,skill:q.skill,correct,firstCorrect,hintLevel,revealed,difficulty:q.difficulty,type:q.type});
   }
   function updateRunItem(q,correct,firstCorrect,revealed=false,skipped=false){
-    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed,skipped};
+    const item={questionId:q.id,prompt:q.prompt,correct,firstCorrect,revealed,skipped,attempted:!skipped};
     const index=run.items.findIndex(x=>x.questionId===q.id);
     if(index>=0)run.items[index]={...run.items[index],...item};else run.items.push(item);
   }
@@ -98,7 +98,9 @@
   }
   function skipQuestion(){
     const q=current();if(!q)return;
-    updateRunItem(q,false,false,false,true);
+    const existing=run.items.find(x=>x.questionId===q.id);
+    if(existing)existing.skipped=true;
+    else updateRunItem(q,false,false,false,true);
     next();
   }
   function retry(){if(current()?.type!=="compose")selection=null;feedback=null;render();}
