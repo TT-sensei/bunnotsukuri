@@ -111,7 +111,7 @@
     render();
   }
   function chooseWord(id){
-    const q=current();if(!q||feedback)return;
+    const q=current();if(!q||(feedback&&!feedback.hintOnly))return;
     if(q.type==="pair"){
       if(!selection||!selection.left)selection={left:id,right:null};
       else if(!selection.right&&selection.left!==id)selection={...selection,right:id};
