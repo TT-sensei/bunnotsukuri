@@ -42,7 +42,7 @@
     return shell(q.stage?window.BUN_DATA.stages.find(s=>s.id===q.stage)?.title||"苦手特訓":"苦手特訓","問題 "+(index+1)+" / "+total,'<div class="learning-layout"><section class="question-panel"><div class="question-meta"><span>'+safe(typeLabels[q.type]||"文の学習")+'</span><span>'+(q.difficulty==="basic"?"基本":q.difficulty==="standard"?"標準":"チャレンジ")+'</span></div><div class="progress-track"><span style="width:'+((index+1)/total*100)+'%"></span></div><h2 class="question-prompt">'+safe(q.prompt)+'</h2>'+sentence+task+'<div class="answer-actions">'+hintButton+revealButton+skipButton+controls+'</div>'+feedbackHtml+'</section>'+side+'</div>',"home");
   }
   function result(run){
-    const answered=run.items.filter(x=>!x.skipped);
+    const answered=run.items.filter(x=>x.attempted!==false);
     const skipped=run.items.filter(x=>x.skipped);
     const correct=answered.filter(x=>x.correct).length;
     const pct=answered.length?Math.round(correct/answered.length*100):null;
