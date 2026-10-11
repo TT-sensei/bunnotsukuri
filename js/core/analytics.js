@@ -17,7 +17,7 @@
   function recommend(skills){
     const rows=Object.values(skills).filter(s=>s.attempts>=3).sort((a,b)=>a.accuracy-b.accuracy);
     if(!rows.length)return {title:"いろいろな問題を解いてみよう",message:"もう少し問題に取り組むと、次に練習するとよい内容が見えてくるよ。",skill:null};
-    const s=rows[0],labels={subject:"主語を見つける",predicate:"じゅつ語を見つける",subjectPredicate:"主語とじゅつ語をつなぐ",modifier:"くわしくする言葉を見つける",modifierRelation:"くわしくする言葉のかかる相手",sentenceCore:"文の中心",predicateType:"じゅつ語の種類",sentenceRepair:"文を読みやすく直す",wordOrder:"語順の工夫",sentenceCreation:"自分で文を作る"};
+    const s=rows[0],labels={subject:"主語を見つける",predicate:"じゅつ語を見つける",subjectPredicate:"主語とじゅつ語をつなぐ",modifier:"くわしくする言葉",modifierRelation:"言葉のつながり",sentenceCore:"文の中心",predicateType:"じゅつ語のなかま",sentenceRepair:"文を読みやすく直す",wordOrder:"言葉の順番",sentenceCreation:"自分で文を作る"};
     return {title:labels[s.skill]||"もう一度練習",message:"まずは短い文から練習し、できたら少し長い文に進もう。",skill:s.skill,accuracy:s.accuracy};
   }
   window.BunAnalytics={summarize,stageSummary,recommend};
