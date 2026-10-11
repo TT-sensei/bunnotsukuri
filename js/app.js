@@ -134,7 +134,7 @@
     render();
   }
   function reorderRemove(id){if(feedback&&!feedback.hintOnly)return;selection=(Array.isArray(selection)?selection:[]).filter(x=>x!==id);render();}
-  root.addEventListener("click",e=>{
+  document.addEventListener("click",e=>{
     const action=e.target.closest("[data-action]")?.dataset.action;
     if(action){
       const el=e.target.closest("[data-action]");
