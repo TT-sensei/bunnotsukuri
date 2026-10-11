@@ -3,3 +3,40 @@
 @media(max-width:800px){.stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.learning-layout{grid-template-columns:1fr}.side-panel{display:grid;grid-template-columns:1fr 1fr}.navi-card img{width:54px;height:76px}.hero{grid-template-columns:1fr .55fr}.home-bottom{grid-template-columns:1fr}.question-panel{padding:20px}.record-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.topbar{height:58px;padding:0 12px}.brand{font-size:.95rem}.brand-mark{width:30px;height:30px}.quiet-button{padding:7px 9px;font-size:.8rem}.top-actions{gap:5px}main{padding:14px 12px}.hero{grid-template-columns:1fr;padding:22px;gap:8px}.hero-art{width:130px;justify-self:end;grid-row:1;grid-column:1}.hero>div:first-child{grid-row:2}.hero h1{font-size:2.1rem}.hero-art img{max-height:120px}.stage-grid{gap:8px}.stage-card{padding:13px;min-height:150px}.section-head{align-items:start;flex-direction:column}.side-panel{grid-template-columns:1fr}.navi-card img{width:48px;height:68px}.record-grid{grid-template-columns:1fr 1fr}.skill-row{grid-template-columns:1fr 48px;gap:7px}.skill-bar{grid-column:1/-1;grid-row:2}.skill-row strong{grid-column:2;grid-row:1;text-align:right}.pair-row{gap:5px}.pair-row .word-button{padding:9px 6px;font-size:.9rem}.answer-actions .button.primary{margin-left:0;width:100%}.site-footer{padding:14px 12px;font-size:.75rem}.site-footer span:last-child{text-align:right}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* Japanese traditional palette: kinari, ai, benikaba and matcha */
+:root{--ink:#293b3b;--muted:#687873;--line:#e2d8c8;--paper:#fffdf8;--canvas:#f4efe5;--blue:#315b68;--blue-soft:#e6efed;--red:#a94f4a;--red-soft:#f7eae5;--green:#627650;--green-soft:#edf1e5;--amber:#956d32;--amber-soft:#f8f0dc;--shadow:0 8px 26px rgba(67,54,35,.07)}
+html{background:var(--canvas)}
+body{background-color:var(--canvas);background-image:radial-gradient(ellipse at 12% 8%,rgba(195,154,85,.08),transparent 32%),radial-gradient(ellipse at 90% 35%,rgba(79,125,119,.06),transparent 30%)}
+.topbar{background:rgba(250,246,237,.96);border-bottom-color:#d9cbb4}
+.brand-mark{background:#315b68;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.quiet-button,.button,.back-button{border-color:#d9cbb8;background:#fffdf8}
+.button.primary{background:#315b68;border-color:#315b68}
+.button.soft{background:#e6efed;border-color:#c6d9d4;color:#315b68}
+.hero{border-color:#d8c8ad;background:linear-gradient(125deg,#fffaf0 0%,#f5eee0 55%,#e8efeb 100%);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-26px;top:-34px;width:170px;height:170px;border:1px solid rgba(169,79,74,.18);border-radius:50%;box-shadow:0 0 0 12px rgba(169,79,74,.035),0 0 0 25px rgba(49,91,104,.035);pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.eyebrow{color:#a94f4a}
+.stage-card,.panel,.question-panel,.navi-card,.result-hero,.stat-card{background:rgba(255,253,248,.94);border-color:#e1d6c5}
+.stage-card:hover{border-color:#9db8ad}
+.stage-num{background:#e6efed;color:#315b68}
+.stage-progress{background:#ece5d9}
+.stage-progress span,.skill-bar span{background:#71815d}
+.question-panel{box-shadow:0 8px 26px rgba(67,54,35,.055)}
+.progress-track{background:#ece5d9}
+.progress-track span{background:#547f88}
+.sentence-box{background:#f8f3e9;border-color:#e4d5bb}
+.word-button,.choice-button{border-color:#d9cbb8;background:#fffdf8}
+.word-button[aria-pressed=true],.choice-button[aria-pressed=true]{background:#e6efed;border-color:#547f88;color:#294f5a;box-shadow:0 0 0 1px #547f88 inset}
+.word-button.role-subject{border-bottom-color:#547f88}
+.word-button.role-predicate{border-bottom-color:#b45b53}
+.word-button.role-modifier{border-bottom-color:#71815d}
+.side-note{background:#e9efea;color:#4e625c}
+.side-note strong{color:#293b3b}
+.result-score{color:#315b68}
+.site-footer{color:#766e5f}
+.feedback.correct{background:#edf1e5;border-color:#d5dfc6}
+.feedback.retry{background:#f8f0dc;border-color:#ead8ae}
+.compose-form input,.compose-form textarea,.compose-form select{border-color:#d9cbb8;background:#fffdf8}
+@media(prefers-reduced-motion:reduce){.stage-card:hover{transform:none}}
