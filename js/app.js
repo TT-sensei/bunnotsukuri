@@ -80,7 +80,8 @@
     logAttempt(q,false,!!run.firstAttemptResults[q.id],true);
     updateRunItem(q,false,!!run.firstAttemptResults[q.id],true);
     render();
-    const f=root.querySelector(".feedback");if(f)f.insertAdjacentHTML("beforeend",'<p class="feedback-detail"><strong>答え：</strong>'+window.BunUI.safe(ans)+'</p>');
+    const answerLabel=q.type==="reorder"&&Array.isArray(q.answerPatterns)&&q.answerPatterns.length?"答えの一つ：":"答え：";
+    const f=root.querySelector(".feedback");if(f)f.insertAdjacentHTML("beforeend",'<p class="feedback-detail"><strong>'+answerLabel+'</strong>'+window.BunUI.safe(ans)+'</p>');
   }
   function answerText(q){
     if(q.type==="select"||q.type==="classify")return q.parts.find(p=>p.id===q.answer)?.text||"";
