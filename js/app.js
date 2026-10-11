@@ -4,7 +4,6 @@
   let screen="home",stageId=1,run=null,currentIndex=0,selection=null,feedback=null,hintLevel=0,mode="stage",trainingSkill=null;
   const storage=window.BunStorage;
   function snapshot(){return storage.snapshot();}
-  function shuffled(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
   function stageProgress(){const attempts=snapshot().attempts;const out={};DATA.stages.forEach(s=>{const rows=attempts.filter(a=>a.stage===s.id);out[s.id]=rows.length?Math.round(rows.filter(a=>a.correct).length/rows.length*100):0;});return out;}
   function render(){
     const s=snapshot();
@@ -41,7 +40,7 @@
       if(!qs.length)qs=DATA.questions.filter(q=>q.stage===stageId);
     }
     const length=snapshot().settings.sessionLength;
-    run={stage:stageId,questions:shuffled(qs).slice(0,Math.min(length,qs.length)),items:[],firstAttemptResults:{},lastStage:stageId};
+    run={stage:stageId,questions:window.BunSession.build(qs,length),items:[],firstAttemptResults:{},lastStage:stageId};
     currentIndex=0;selection=null;feedback=null;hintLevel=0;screen="question";render();
   }
   function current(){return run&&run.questions[currentIndex];}
@@ -54,7 +53,7 @@
     if(index>=0)run.items[index]={...run.items[index],...item};else run.items.push(item);
   }
   function check(){
-    if(feedback)return;
+    if(feedback&&!feedback.hintOnly)return;
     const q=current();if(!q)return;
     if(q.type==="compose"&&typeof selection!=="string")selection="";
     const result=window.BunGrading.evaluate(q,selection);
@@ -73,7 +72,7 @@
     render();
   }
   function reveal(){
-    if(feedback)return;const q=current();
+    if(feedback&&!feedback.hintOnly)return;const q=current();
     const ans=answerText(q);
     feedback={correct:false,message:"答えと考え方を確認しよう。",explanation:q.explanation,revealed:true,answer:ans};
     if(!Object.prototype.hasOwnProperty.call(run.firstAttemptResults,q.id))run.firstAttemptResults[q.id]=false;
@@ -105,7 +104,7 @@
   }
   function retry(){if(current()?.type!=="compose")selection=null;feedback=null;render();}
   function chooseAnswer(id){
-    const q=current();if(!q||feedback)return;
+    const q=current();if(!q||(feedback&&!feedback.hintOnly))return;
     if(q.type==="repair"){selection=id;}
     else if(q.type==="strip"){selection=Array.isArray(selection)?selection.includes(id)?selection.filter(x=>x!==id):[...selection,id]:[id];}
     else selection=id;
@@ -129,12 +128,12 @@
     render();
   }
   function reorderAdd(id){
-    if(feedback)return;const q=current();let order=Array.isArray(selection)?selection:[];
+    if(feedback&&!feedback.hintOnly)return;const q=current();let order=Array.isArray(selection)?selection:[];
     if(!selection)order=[];
     if(!order.includes(id))selection=[...order,id];
     render();
   }
-  function reorderRemove(id){if(feedback)return;selection=(Array.isArray(selection)?selection:[]).filter(x=>x!==id);render();}
+  function reorderRemove(id){if(feedback&&!feedback.hintOnly)return;selection=(Array.isArray(selection)?selection:[]).filter(x=>x!==id);render();}
   root.addEventListener("click",e=>{
     const action=e.target.closest("[data-action]")?.dataset.action;
     if(action){
@@ -147,7 +146,7 @@
       else if(action==="skipQuestion")skipQuestion();
       else if(action==="retry")retry();
       else if(action==="editCompose"){feedback=null;render();}
-      else if(action==="hint"){hintLevel=Math.min(2,hintLevel+1);feedback={correct:false,message:current().hint,explanation:hintLevel>1?current().explanation:"まず、問いかけに合う言葉を探そう。"};render();}
+      else if(action==="hint"){hintLevel=Math.min(2,hintLevel+1);feedback={correct:false,hintOnly:true,message:current().hint,explanation:hintLevel>1?current().explanation:"まず、問いかけに合う言葉を探そう。"};render();}
       else if(action==="reveal")reveal();
       else if(action==="records"){screen="records";render();}
       else if(action==="settings"){screen="settings";render();}
@@ -162,8 +161,8 @@
     }
     const answer=e.target.closest("[data-answer]");if(answer){chooseAnswer(answer.dataset.answer);return;}
     const word=e.target.closest("[data-word]");if(word){chooseWord(word.dataset.word);return;}
-    const pairSide=e.target.closest("[data-pair-side]");if(pairSide){if(!selection)selection={left:null,right:null};if(pairSide.dataset.pairSide==="left")selection={...selection,left:null};else selection={...selection,right:null};render();return;}
-    const relSide=e.target.closest("[data-rel-side]");if(relSide){if(!selection)selection={from:null,to:null};if(relSide.dataset.relSide==="from")selection={...selection,from:null};else selection={...selection,to:null};render();return;}
+    const pairSide=e.target.closest("[data-pair-side]");if(pairSide){if(feedback&&!feedback.hintOnly)return;if(!selection)selection={left:null,right:null};if(pairSide.dataset.pairSide==="left")selection={...selection,left:null};else selection={...selection,right:null};render();return;}
+    const relSide=e.target.closest("[data-rel-side]");if(relSide){if(feedback&&!feedback.hintOnly)return;if(!selection)selection={from:null,to:null};if(relSide.dataset.relSide==="from")selection={...selection,from:null};else selection={...selection,to:null};render();return;}
     const add=e.target.closest("[data-order-add]");if(add){reorderAdd(add.dataset.orderAdd);return;}
     const remove=e.target.closest("[data-order-remove]");if(remove){reorderRemove(remove.dataset.orderRemove);return;}
   });
