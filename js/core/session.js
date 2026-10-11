@@ -23,10 +23,12 @@
     chosen.push(...tiers.standard.splice(0,standardTarget));
     chosen.push(...tiers.challenge.splice(0,challengeTarget));
     if(chosen.length<limit){
-      const remaining=[...tiers.basic,...tiers.standard,...tiers.challenge];
-      const fillOrder={basic:0,standard:1,challenge:2};
-      remaining.sort((a,b)=>(fillOrder[a.difficulty]??1)-(fillOrder[b.difficulty]??1));
-      chosen.push(...shuffle(remaining,random).slice(0,limit-chosen.length));
+      const remaining=[
+        ...shuffle(tiers.basic,random),
+        ...shuffle(tiers.standard,random),
+        ...shuffle(tiers.challenge,random)
+      ];
+      chosen.push(...remaining.slice(0,limit-chosen.length));
     }
     const rank={basic:0,standard:1,challenge:2};
     return chosen.map((question,index)=>({question,index}))
