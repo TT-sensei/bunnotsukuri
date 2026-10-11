@@ -31,9 +31,23 @@
       chosen.push(...remaining.slice(0,limit-chosen.length));
     }
     const rank={basic:0,standard:1,challenge:2};
-    return chosen.map((question,index)=>({question,index}))
+    const ordered=chosen.map((question,index)=>({question,index}))
       .sort((a,b)=>(rank[a.question.difficulty]??1)-(rank[b.question.difficulty]??1)||a.index-b.index)
       .map(entry=>entry.question);
+    return ordered.map(question=>{
+      if(question.type!=="reorder")return question;
+      const accepted=[question.answer,...(Array.isArray(question.answerPatterns)?question.answerPatterns:[])];
+      const isAnswerOrder=parts=>accepted.some(pattern=>equalOrder(pattern,parts.map(part=>part.id)));
+      let parts=shuffle(question.parts,random);
+      // Keep the available words from accidentally appearing in an accepted answer order.
+      for(let attempt=0;attempt<question.parts.length&&isAnswerOrder(parts);attempt++){
+        parts=parts.slice(1).concat(parts[0]);
+      }
+      return {...question,parts};
+    });
+  }
+  function equalOrder(a,b){
+    return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((value,index)=>value===b[index]);
   }
   window.BunSession={build};
 })();

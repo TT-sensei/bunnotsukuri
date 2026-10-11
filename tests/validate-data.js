@@ -58,4 +58,19 @@ assert.ok(reorderQuestions.some(q => q.answerPatterns && q.answerPatterns.length
 const reorderWithAlternative = reorderQuestions.find(q => q.answerPatterns && q.answerPatterns.length);
 assert.ok(window.BunGrading.evaluate(reorderWithAlternative, reorderWithAlternative.answerPatterns[0]).correct, "並べ替えの別解を正解として受け入れる");
 
+
+const stageNine = questions.filter(q => q.stage === 9);
+const stageNineSession = window.BunSession.build(stageNine, stageNine.length, () => 0.42);
+for (const q of stageNineSession.filter(item => item.type === "reorder")) {
+  const accepted = [q.answer, ...(q.answerPatterns || [])];
+  assert.ok(!accepted.some(pattern => pattern.every((id, i) => q.parts[i]?.id === id)),
+    "並べ替えの選択肢が最初から正解順にならない: " + q.id);
+}
+require("../js/ui.js");
+const visibleReorder = window.BunUI.question(
+  stageNine[0], 0, 1, null, null, { showNavi: false }, "stage", 0
+);
+assert.ok(!visibleReorder.includes(stageNine[0].sentence.replace(/ /g, "　")),
+  "並べ替え問題で元の文を表示して答えを見せない");
+
 console.log("OK: " + stages.length + " stages, " + questions.length + " questions, answer patterns and session flow verified.");
