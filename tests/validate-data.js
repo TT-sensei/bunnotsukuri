@@ -50,7 +50,8 @@ assert.ok(session.every((q, i) => i === 0 || difficultyRank[session[i - 1].diffi
 assert.equal(window.BunSession.build(stageOne, 100).length, stageOne.length, "問題数より多く指定しても全問題数をこえない");
 const stageTen = questions.filter(q => q.stage === 10);
 const shortWritingSession = window.BunSession.build(stageTen, 5, () => 0.42);
-assert.equal(shortWritingSession.filter(q => q.difficulty === "basic").length, 1, "基本問題が少ないステージでも、ある基本問題から始める");
+assert.ok(shortWritingSession.some(q => q.difficulty === "basic"), "基本問題があるステージでは基本問題を含める");
+assert.equal(shortWritingSession[0].difficulty, "basic", "短い学習は基本問題から始める");
 assert.equal(shortWritingSession.filter(q => q.difficulty === "challenge").length, 1, "短い学習ではチャレンジ問題を詰め込みすぎない");
 const reorderQuestions = questions.filter(q => q.type === "reorder");
 assert.ok(reorderQuestions.some(q => q.answerPatterns && q.answerPatterns.length), "複数の正しい並べ方がある問題を含む");
